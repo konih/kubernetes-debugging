@@ -23,10 +23,16 @@ other pods.
 
 **Sidecar containers** are secondary containers deployed in the same pod as the primary application container. Their
 shared environment means they can freely communicate over `localhost`, signal processes in other containers if PID
-namespace sharing is enabled, and share volumes defined at the pod level. This close interaction allows sidecar
-containers to augment or extend the primary container's behavior.
+namespace sharing is enabled, and share volumes defined at the pod level.
+
+The diagram below provides a visual representation of this concept. In it, you can see how a sidecar container shares
+most namespaces with the primary application container, including the PID, network, and IPC namespaces. They are
+separate only in their mount namespaces and Unix Time-Sharing (UTS) namespaces, which are unique to each container.
 
 ![pod_sidecar_namespaces.svg](images%2Fpod_sidecar_namespaces.svg)
+
+This namespace sharing enables sidecar containers to closely interact with the primary application container, enabling
+them to supplement or extend the primary container's behavior in various ways.
 
 ## Ephemeral Containers: Temporary Sidecars for Practical Use
 
