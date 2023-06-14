@@ -57,7 +57,8 @@ benefits in managing and debugging applications in a live environment.
 
 ## Advanced Debugging in Kubernetes with Kubectl Debug
 
-In order to understand how ephemeral containers operate, we'll be using the `kubectl debug` command. This allows you to add an ephemeral container to a running pod without altering its existing containers.
+In order to understand how ephemeral containers operate, we'll be using the `kubectl debug` command. This allows you to
+add an ephemeral container to a running pod without altering its existing containers.
 
 Let's see how this works:
 
@@ -73,12 +74,79 @@ kubectl get pods
 kubectl debug -it <pod-name> --image=busybox --target=<pod-name>
 ```
 
-The `-it` flag allows for an interactive session, `--image` specifies the container image, and `--target` designates the pod to add the ephemeral container to.
+The `-it` flag allows for an interactive session, `--image` specifies the container image, and `--target` designates the
+pod to add the ephemeral container to.
 
 The `kubectl debug` command also includes additional options to further refine your debugging:
 
-- **Debugging Nodes:** Use `kubectl debug node/my-node` to create a new pod running in the host namespaces, like host PID, host network, etc. This is akin to running a privileged pod on the node. However, it's best to limit its use due to security concerns.
+- **Debugging Nodes:** Use `kubectl debug node/my-node` to create a new pod running in the host namespaces, like host
+  PID, host network, etc. This is akin to running a privileged pod on the node. However, it's best to limit its use due
+  to security concerns.
 
-- **--share-processes:** This flag, used when creating a pod, enables all containers in the pod to share a single process namespace, allowing for inter-process interaction as if on the same host.
+- **--share-processes:** This flag, used when creating a pod, enables all containers in the pod to share a single
+  process namespace, allowing for inter-process interaction as if on the same host.
 
-- **--profile:** This option allows users to set "Debugging Profiles," providing configuration for the debug container to suit your needs. The available profiles include `general`, `baseline`, `restricted`, `auto`, `sysadmin`, `netadmin`, and `legacy`. Each profile offers a variety of configurations based on your debugging journey or security standard.
+- **--profile:** This option allows users to set "Debugging Profiles," providing configuration for the debug container
+  to suit your needs. The available profiles
+  include `general`, `baseline`, `restricted`, `auto`, `sysadmin`, `netadmin`, and `legacy`. Each profile offers a
+  variety of configurations based on your debugging journey or security standard.
+
+## Introduction to Nicolaka/Netshoot and Utilizing Tcpdump in Kubernetes
+
+The [nicolaka/netshoot](https://github.com/nicolaka/netshoot) is a container image that contains an impressive
+collection of Linux network debugging and performance analysis tools. Some of these tools
+include `curl`, `iperf`, `iproute2`, `iptables`, `nmap`, `tcpdump`, and `tshark`, among many others. Its extensive
+toolkit makes it ideal for network troubleshooting and performance tuning.
+
+![Linux Performance Observability Tools included in netshoot](images%2Fnetshoot.png)
+
+Let's now turn our attention to `tcpdump`, a powerful tool for network traffic analysis, and understand how to use it
+with Kubernetes using `kubectl debug`.
+
+### Understanding Tcpdump
+
+`Tcpdump` is a common packet analyzer that runs under the command line. It allows the user to display TCP/IP and other
+packets being transmitted or received over a network to which the computer is attached. Tcpdump is especially powerful
+because it provides a detailed timestamp, allows you to read or write packet data from files, and lets you filter
+packets based on specific parameters.
+
+In the context of Kubernetes, it can be especially useful for debugging network issues between your pods or services.
+
+### Debugging with Tcpdump and Wireshark
+
+In this section, we'll demonstrate how to use `tcpdump` with `kubectl debug` to capture network traffic from a pod and
+analyze it locally using `Wireshark`.
+
+1. Identify the pod you want to debug.
+
+```bash
+kubectl get pods
+```
+
+2. Launch an interactive debugging session using `kubectl debug` and the `nicolaka/netshoot` image.
+
+```bash
+kubectl debug -it <pod-name> --image=nicolaka/netshoot --target=<pod-name>
+```
+
+3. Once inside the debug session, initiate a `tcpdump` capture on the interface of interest (e.g., eth0). Save the
+   capture to a file.
+
+```bash
+tcpdump -i eth0 -w /tmp/capture.pcap
+```
+
+4. After capturing sufficient data, exit the debug session. Copy the captured file from the pod to your local machine
+   using `kubectl cp`.
+
+```bash
+kubectl cp <pod-name>:/tmp/capture.pcap ./capture.pcap
+```
+
+5. Open the copied `.pcap` file locally using Wireshark for in-depth packet analysis.
+
+Remember, `tcpdump` captures all the packets going through the network interface, so ensure to use it responsibly and
+consider potential privacy issues.
+
+With `tcpdump`, `kubectl debug`, and `Wireshark`, you have powerful tools at your disposal to identify and diagnose
+network issues within your Kubernetes environment.
