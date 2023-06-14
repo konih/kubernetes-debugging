@@ -55,10 +55,11 @@ container, you need to make sure `kubectl` is installed and configured to intera
 In sum, ephemeral containers serve as a vital tool in the Kubernetes ecosystem, providing flexibility and practical
 benefits in managing and debugging applications in a live environment.
 
-## Creating an Ephemeral Container using kubectl
+## Advanced Debugging in Kubernetes with Kubectl Debug
 
-Creating an ephemeral container involves updating the existing pod to add the ephemeral container. You can use
-the `kubectl debug` command to add an ephemeral container to a running pod. Here's how to do it:
+In order to understand how ephemeral containers operate, we'll be using the `kubectl debug` command. This allows you to add an ephemeral container to a running pod without altering its existing containers.
+
+Let's see how this works:
 
 1. Identify the name of the pod you want to debug.
 
@@ -72,11 +73,12 @@ kubectl get pods
 kubectl debug -it <pod-name> --image=busybox --target=<pod-name>
 ```
 
-The `-it` flag opens an interactive session, `--image` specifies the container image to use, and `--target` specifies
-the name of the pod to which the ephemeral container should be added.
+The `-it` flag allows for an interactive session, `--image` specifies the container image, and `--target` designates the pod to add the ephemeral container to.
 
-Now, you can run any commands necessary to diagnose your issues within this ephemeral container.
+The `kubectl debug` command also includes additional options to further refine your debugging:
 
-Remember, ephemeral containers are an experimental feature as of the time of writing, and their usage may change in
-future Kubernetes versions. But, they offer an exciting glimpse into the future of debugging in a Kubernetes
-environment.
+- **Debugging Nodes:** Use `kubectl debug node/my-node` to create a new pod running in the host namespaces, like host PID, host network, etc. This is akin to running a privileged pod on the node. However, it's best to limit its use due to security concerns.
+
+- **--share-processes:** This flag, used when creating a pod, enables all containers in the pod to share a single process namespace, allowing for inter-process interaction as if on the same host.
+
+- **--profile:** This option allows users to set "Debugging Profiles," providing configuration for the debug container to suit your needs. The available profiles include `general`, `baseline`, `restricted`, `auto`, `sysadmin`, `netadmin`, and `legacy`. Each profile offers a variety of configurations based on your debugging journey or security standard.
