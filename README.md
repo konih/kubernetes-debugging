@@ -1,3 +1,7 @@
+<div align="center">
+<img src="images/header.png"/>
+</div>
+
 # Debugging in Kubernetes with Ephemeral Containers: A Practical Guide
 
 Understanding the complexities of Kubernetes, the leading platform for orchestrating and automating container
