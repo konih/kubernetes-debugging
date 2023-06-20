@@ -56,8 +56,6 @@ interaction, however, is governed by the pod's security context and Kubernetes' 
 Creating an ephemeral container requires the use of the `kubectl` command-line tool. Before you can create an ephemeral
 container, you need to make sure `kubectl` is installed and configured to interact with your Kubernetes cluster.
 
-In sum, ephemeral containers serve as a vital tool in the Kubernetes ecosystem, providing flexibility and practical
-benefits in managing and debugging applications in a live environment.
 
 ## Advanced Debugging in Kubernetes with Kubectl Debug
 

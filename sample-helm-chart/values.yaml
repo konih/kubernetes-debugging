@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: hashicorp/http-echo
+  repository: gcr.io/google-samples/hello-app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 0.2.3
+  tag: "2.0"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -42,7 +42,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 ingress:
   enabled: false
