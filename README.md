@@ -120,9 +120,12 @@ packets being transmitted or received over a network to which the computer is at
 because it provides a detailed timestamp, allows you to read or write packet data from files, and lets you filter
 packets based on specific parameters.
 
-In the context of Kubernetes, it can be especially useful for debugging network issues between your pods or services.
-
 ### Debugging with Tcpdump and Wireshark
+
+Tcpdump is one of the first tools you traditionally reach for when debugging network issues. One of the security
+best practices related to containers is to not install any unnecessary tools in your production images. This means that
+you should not have `tcpdump` installed in your production images. However, this doesn't mean you can't use it to debug
+issues in your production environment.
 
 In this section, we'll demonstrate how to use `tcpdump` with `kubectl debug` to capture network traffic from a pod and
 analyze it locally using `Wireshark`.
