@@ -2,6 +2,14 @@
 <img src="images/header.png"/>
 </div>
 
+# The Problem with using minimal container images
+
+For many years, the standard practice for building container images was to use a minimal base image, such as Alpine or Distrosless. This practice was driven by the desire to reduce the size of the container image, and thus reduce the attack surface of the container. 
+Up until Kubernetes 1.20, this practice had a significant drawback: it made debugging containers more difficult. This lead to a common practice of using a different base image for development and production, which is not ideal and will not be helpful in the case of an issue on production.
+
+Fortunately, Kubernetes 1.20 introduced a new feature called ephemeral containers, which allows you to attach a debugging container to a running pod. This means that you can now use a minimal base image for your production container, and still be able to debug it if needed.
+This article will show you how to use ephemeral containers to debug common networking issues and also show you how to use ephemeral containers to debug a Java and a Go application.
+
 # Debugging in Kubernetes with Ephemeral Containers: A Practical Guide
 
 Understanding the complexities of Kubernetes, the leading platform for orchestrating and automating container
