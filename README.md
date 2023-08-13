@@ -124,6 +124,19 @@ The `kubectl debug` command also includes additional options to further refine y
   include `general`, `baseline`, `restricted`, `auto`, `sysadmin`, `netadmin`, and `legacy`. Each profile offers a
   variety of configurations based on your debugging journey or security standard.
 
+-- **--copy-to** This option creates a copy of the target pod with a new name. This 
+
+## Which images can I use?
+
+- Netshoot
+- Koolkits by LightRun
+
+## Switching to a different root while bringing the debugging binaries
+
+```bash
+
+```
+
 ## Introduction to Nicolaka/Netshoot and Utilizing Tcpdump in Kubernetes
 
 The [nicolaka/netshoot](https://github.com/nicolaka/netshoot) is a container image that contains an impressive
@@ -186,3 +199,129 @@ consider potential privacy issues.
 
 With `tcpdump`, `kubectl debug`, and `Wireshark`, you have powerful tools at your disposal to identify and diagnose
 network issues within your Kubernetes environment.
+
+# The proc filesystem
+
+# Setting securityContext, adding capabilities, and using privileged containers
+
+# Mouting volumes
+
+```bash
+ln -s /proc/$$/root/bin /proc/1/root/debug_image_bin # $$ refers to the current process ID
+export PATH=${PATH}:/proc/1/root/debug_image_bin
+chroot /proc/1/root sh # set the root filesystem to the root of the container
+```
+
+---
+
+# Debugging in Kubernetes with Go KoolKit: A Practical Guide
+
+Demystifying the intricacies of Kubernetes, the preeminent platform for orchestrating and automating container deployment, is often challenging, especially for software engineers who might not be deeply familiar with its administrative facets. Thanks to Kubernetes' recent advancements, we can streamline some of these complex tasks.
+
+This article delves into the Go KoolKit, an efficient debugging tool available in Kubernetes. But first, let's understand Linux namespaces, the fundamental concept underlying Kubernetes operations.
+
+## Linux Namespaces and Kubernetes: A Container's Perspective
+
+Linux namespaces are powerful Linux kernel features that encapsulate system resources to provide isolated environments, each with unique global resources such as process IDs (PID) or network stacks. Kubernetes uses this technology via container runtimes like Docker, containerd, or CRI-O, creating a new set of namespaces for each pod. This ensures each pod has its own isolated network, IPC, UTS, and PID environments.
+
+Within this context, Kubernetes constructs such as sidecar and ephemeral containers become important. These exist within the pod's shared namespaces, enabling inter-container communication as if on the same host while remaining isolated from other pods.
+
+This article previously introduced sidecar and ephemeral containers; here we will explore how to debug using Go KoolKit.
+
+## Getting Started with Go KoolKit
+
+Go KoolKit is part of the Kubernetes Toolkits (KoolKits), a set of language-specific container images with highly opinionated debugging tools for applications running in Kubernetes pods. To use the Go KoolKit, add the shorthand `kk` command to your shell by pasting the following snippet:
+
+```bash
+echo "## KoolKits - Shorthand
+kk() {
+	kubectl debug -it $1 --image=lightruncom/koolkits:$2 --image-pull-policy=Never --target=$3
+}" >> ~/.bashrc
+source ~/.bashrc
+```
+
+Now, you can run the Go KoolKit with your pod:
+
+```bash
+kk <POD-NAME> golang <DEPLOYMENT-NAME>
+```
+
+## Go KoolKit Debugging Techniques
+
+The Go KoolKit features numerous utilities, including delve, pprof, fzf, alp, go-callvis, and gvm. Apart from these, it includes additional tools on top of the official ubuntu:20.04 image. Let's examine how to use some of these tools to debug your Kubernetes applications effectively.
+
+### Chroot /proc/1/root
+
+The `chroot` command changes the apparent root directory for the current running process and its children. Here's how to use it:
+
+```bash
+chroot /proc/1/root
+```
+
+By issuing this command, you're changing the root directory to the directory where the first process (PID 1) is running.
+
+### Iftop
+
+`Iftop` is a command-line tool that shows a table of current network usage by pairs of hosts. To run `iftop`, use the following command:
+
+```bash
+iftop
+```
+
+### Drill
+
+`Drill` is a tool similar to `dig` that queries DNS servers for information. It can be useful for diagnosing DNS-related issues in your Kubernetes environment. Here's how to use it:
+
+```bash
+drill example.com
+```
+
+Replace `example.com` with the domain name you want to investigate.
+
+### Debugging a Pod in CrashLoopBackOff
+
+When a pod is in a `CrashLoopBackOff` state, it means the pod is crashing repeatedly. Debugging in this scenario can be challenging but essential. You can use the `kubectl logs` command to inspect the logs of the crashed pod:
+
+```bash
+
+
+kubectl logs <POD-NAME>
+```
+
+Additionally, you can use `kubectl describe` to get more information about the pod:
+
+```bash
+kubectl describe pod <POD-NAME>
+```
+
+These commands will provide valuable information about what's causing the pod to crash.
+
+### Delve
+
+Delve is a debugger for Go programs. It allows you to dissect your program and understand what it is doing at runtime. Here's a simple way to run Delve:
+
+```bash
+dlv debug
+```
+
+You can set breakpoints, step through your code, and evaluate variables using Delve.
+
+### Pprof
+
+`Pprof` is a visualization tool for profiling data, useful for understanding the CPU usage or memory consumption of your Go applications. Here's how to use it:
+
+First, import the net/http/pprof package in your application:
+
+```go
+import _ "net/http/pprof"
+```
+
+Then, start a web server with `http.ListenAndServe()` in your `main()` function:
+
+```go
+go func() {
+	log.Println(http.ListenAndServe("localhost:6060", nil))
+}()
+```
+
+After starting your application, you can navigate to `http://localhost:6060/debug/pprof/` in your web browser to see the profiling data.
