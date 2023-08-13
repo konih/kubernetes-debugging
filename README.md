@@ -64,6 +64,12 @@ interaction, however, is governed by the pod's security context and Kubernetes' 
 Creating an ephemeral container requires the use of the `kubectl` command-line tool. Before you can create an ephemeral
 container, you need to make sure `kubectl` is installed and configured to interact with your Kubernetes cluster.
 
+Limitations of Ephemeral Containers:
+- No readiness or liveness probes
+- Resources are not configurable
+- Can not expose ports
+- No restart policy
+- Can not be removed for audit purposes
 
 ## Advanced Debugging in Kubernetes with Kubectl Debug
 
@@ -86,6 +92,23 @@ kubectl debug -it <pod-name> --image=busybox --target=<pod-name>
 
 The `-it` flag allows for an interactive session, `--image` specifies the container image, and `--target` designates the
 pod to add the ephemeral container to.
+
+You will see an ephermeralContainer section added to the pod's YAML file.
+
+```yaml
+ephemeralContainers:
+  - command:
+    - sh
+    image: busybox
+    imagePullPolicy: IfNotPresent
+    name: debug-container
+    resources: {}
+    securityContext:
+      privileged: true
+    stdin: true
+    terminationMessagePolicy: File
+    tty: true
+```
 
 The `kubectl debug` command also includes additional options to further refine your debugging:
 
